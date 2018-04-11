@@ -7,9 +7,31 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+pkgs <- c("QualtricsTools", "tidyverse","likert")
+for(pkg in pkgs) {
+  if(!require(pkg, character.only = TRUE)) {
+    install.packages(pkg)
+    library(pkg, character.only = TRUE)
+  }
+  library(pkg, character.only = TRUE)
+}
+rm("pkg","pkgs")
+
 library(QualtricsTools)
 library(tidyverse)
 library(likert)
+
+script_question_type <- RCurl::getURL("https://raw.githubusercontent.com/emmamorgan-tufts/surveyreport/master/R/identify_question_type.R", 
+                                 ssl.verifypeer = FALSE)
+eval(parse(text = script_question_type))
+
+script_visual_results <- RCurl::getURL("https://raw.githubusercontent.com/emmamorgan-tufts/surveyreport/master/R/generate_visual_responses.R", 
+                                 ssl.verifypeer = FALSE)
+eval(parse(text = script_visual_results))
+rm("script_question_type", "script_visual_results")
+
+
 ```
 
 ## R Markdown
@@ -18,84 +40,11 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ## Creating visual survey reports
 
-Now I want to work on creating some visual survey reports. To do this, I need to first load my function
+Now I want to work on creating some visual survey reports. The function files were already sourced in the startup code block, so we don't need to load.
 
-```{r identify_question_type, echo=FALSE}
-
-identify_question_type <- function(question) {
-  
-  if (is_text_entry(question)) {question_type <- "text_entry"}
-  
-  else if (is_mc_multiple_answer(question)) {question_type <- "mc_multiple_answer"}
-    
-  else if (is_mc_single_answer(question)) {question_type <- "mc_single_answer"}
-
-  else if (is_matrix_multiple_answer(question)) {question_type <- "matrix_multiple_answer"}
-
-  else if (is_matrix_single_answer(question)) {question_type <- "matrix_single_answer"}
-
-  else {question_type <- "unknown_question_type"}
-  
-  return(question_type)
-}
-
-```
-
-```{r generate_visual_function, echo=FALSE}
-
-generate_visual_responses <- function(question) {
-  
-  #Get our response table decoded
-  
-
-  response_table <- create_response_lookup_table(question)
-  response_table <- as.tibble(lapply(response_table,unlist))
-  response_table <- dplyr::select(response_table, var, text)
-  response_table <- response_table[order(response_table[['var']], decreasing = FALSE),]
-  
-  factor_levels <- unlist(response_table[['text']])
-  
-  #Load text for the question
-  
-  title <- question[['Payload']][['QuestionText']]
-
-  responses <- question[['Responses']]
-  
-  text_responses <- dplyr::mutate(responses, ROW_ID = 1:nrow(responses)) %>%
-    tidyr::gather(key, value, -ROW_ID) %>%
-    dplyr::left_join(response_table, by = c("value" = "var")) %>%
-    select(-value) %>%
-    spread(key=key,value=text, drop=FALSE) %>%
-    select(-ROW_ID)
-  
-  #Convert to factor
-  
-  factor_responses <- as.data.frame(lapply(text_responses, function(x){
-    factor(x, levels =factor_levels)}))
-
-  lr <- likert::likert(factor_responses)
-  return(lr)
-}
-```
-
-
-Now I have loaded my function. Let's see what happens when I try to plot it.
 
 
 ```{r iterate_question_visual}
