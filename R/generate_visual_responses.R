@@ -3,6 +3,8 @@
 #' 
 #' 4/11/2018
 #' Emma Morgan
+#' 
+#' By default, this function will remove n/a options from data and response options
 
 
 library(QualtricsTools)
@@ -10,15 +12,28 @@ library(tidyverse)
 library(likert)
 
 
-generate_visual_responses <- function(question) {
+generate_visual_responses <- function(question, remove_na = TRUE) {
   
   #Get our response table decoded
   
-
   response_table <- create_response_lookup_table(question)
   response_table <- as.tibble(lapply(response_table,unlist))
-  response_table <- dplyr::select(response_table, var, text)
+  response_table <- mutate(response_table, value = as.integer(var))
+  response_table <- dplyr::select(response_table, value, text)
+  response_table <- arrange(response_table, value)
+  response_table <- filter(response_table, ! (value < 0))
   response_table <- response_table[order(response_table[['var']], decreasing = FALSE),]
+  
+
+  response_table <- as.tibble(create_response_lookup_table(question)) %>%
+    select(var, text)# %>%
+    as.tibble()# %>%
+    dplyr::arrange(var)
+  if (remove_na) {
+    response_table <- filter(response_table )
+  }
+  
+  
   
   factor_levels <- unlist(response_table[['text']])
   
