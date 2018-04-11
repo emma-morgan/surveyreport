@@ -17,13 +17,13 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
   #Get our response table decoded
   
   response_table <- create_response_lookup_table(question)
-  response_table <- as.tibble(lapply(response_table,unlist))
-  response_table <- mutate(response_table, value = as.integer(var))
-  response_table <- dplyr::select(response_table, value, text)
-  response_table <- arrange(response_table, value)
-  response_table <- filter(response_table, ! (value < 0))
-  response_table <- response_table[order(response_table[['var']], decreasing = FALSE),]
-  
+  response_table <- as.tibble(lapply(response_table,unlist)) %>%
+    mutate(value = as.integer(var)) %>%
+    dplyr::select(value, text) %>%
+    arrange(value)
+  if (remove_na) {
+    response_table <- filter(response_table, !(value < 0))
+  }
 
   response_table <- as.tibble(create_response_lookup_table(question)) %>%
     select(var, text)# %>%
