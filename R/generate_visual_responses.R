@@ -39,7 +39,7 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
   
   #Load text for the question
   
-  title <- question[['Payload']][['QuestionText']]
+  title <- question[['Payload']][['QuestionTextClean']]
 
   q_responses <- question[['Responses']]
   

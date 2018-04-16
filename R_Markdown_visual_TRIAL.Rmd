@@ -49,11 +49,13 @@ Now I want to work on creating some visual survey reports. The function files we
 
 ```{r iterate_question_visual}
 
-get_setup(sample_data = TRUE)
+get_setup(headerrows = 3)
 
 question_type_list <- list()
 
-visual_response_list <- list
+visual_response_list <- list()
+
+i <- 1
 
 for (question in questions) {
   
@@ -61,7 +63,7 @@ for (question in questions) {
   
   question_type_list[[question$Payload$QuestionID]] <- question_type
   
-  if (startsWith(question_type,"matrix") | startsWith(question_type, "mc")) {
+  if (startsWith(question_type,"matrix_single") | startsWith(question_type, "mc_single")) {
     print(paste(question$Payload$QuestionID,": ",
                 question$Payload$QuestionText, " (",
                 question_type,")",sep=""))
@@ -73,7 +75,8 @@ for (question in questions) {
                 question_type,")",sep=""))
   }
   
-  
+  i <- i+1
+  print(paste("i: ",i,sep=""))
 
 }
 
