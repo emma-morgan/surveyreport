@@ -18,7 +18,7 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
   
   response_table <- create_response_lookup_table(question)
   response_table <- as.tibble(lapply(response_table,unlist)) %>%
-    mutate(value = as.integer(var)) %>%
+    mutate(value = as.numeric(var)) %>%
     dplyr::select(value, text) %>%
     arrange(value)
   if (remove_na) {
@@ -45,7 +45,7 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
   
   text_responses <- dplyr::mutate(q_responses, ROW_ID = 1:nrow(q_responses)) %>%
     tidyr::gather(key, value, -ROW_ID) %>%
-    dplyr::mutate(int_value = as.integer(value)) %>%
+    dplyr::mutate(int_value = as.numeric(value)) %>%
     dplyr::left_join(response_table, by = c("int_value" = "value")) %>%
     select(-value,-int_value) %>%
     spread(key=key,value=text, drop=FALSE) %>%
