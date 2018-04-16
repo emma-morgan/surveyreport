@@ -11,7 +11,7 @@ identify_question_type <- function(question) {
   
   else if (is_mc_multiple_answer(question)) {question_type <- "mc_multiple_answer"}
   
-  else if (is_mc_single_answer(question)) {question_type <- "mc_singel_answer"}
+  else if (is_mc_single_answer(question)) {question_type <- "mc_single_answer"}
   
   else if (is_matrix_multiple_answer(question)) {question_type <- "matrix_multiple_answer"}
   
