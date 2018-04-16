@@ -25,13 +25,13 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
     response_table <- filter(response_table, !(value < 0))
   }
 
-  response_table <- as.tibble(create_response_lookup_table(question)) %>%
-    select(var, text)# %>%
-    as.tibble()# %>%
-    dplyr::arrange(var)
-  if (remove_na) {
-    response_table <- filter(response_table )
-  }
+  # response_table <- as.tibble(create_response_lookup_table(question)) %>%
+  #   select(var, text)# %>%
+  #   as.tibble()# %>%
+  #   dplyr::arrange(var)
+  # if (remove_na) {
+  #   response_table <- filter(response_table )
+  # }
   
   
   
@@ -41,12 +41,13 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
   
   title <- question[['Payload']][['QuestionText']]
 
-  responses <- question[['Responses']]
+  q_responses <- question[['Responses']]
   
-  text_responses <- dplyr::mutate(responses, ROW_ID = 1:nrow(responses)) %>%
+  text_responses <- dplyr::mutate(q_responses, ROW_ID = 1:nrow(q_responses)) %>%
     tidyr::gather(key, value, -ROW_ID) %>%
-    dplyr::left_join(response_table, by = c("value" = "var")) %>%
-    select(-value) %>%
+    dplyr::mutate(int_value = as.integer(value)) %>%
+    dplyr::left_join(response_table, by = c("int_value" = "value")) %>%
+    select(-value,-int_value) %>%
     spread(key=key,value=text, drop=FALSE) %>%
     select(-ROW_ID)
   
