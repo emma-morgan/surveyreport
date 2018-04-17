@@ -2,11 +2,11 @@
 title: "Visual_Survey_Report_Prelim"
 author: "Emma Morgan"
 date: "April 11, 2018"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 pkgs <- c("QualtricsTools", "tidyverse","likert")
 for(pkg in pkgs) {
@@ -29,7 +29,12 @@ eval(parse(text = script_question_type))
 script_visual_results <- RCurl::getURL("https://raw.githubusercontent.com/emmamorgan-tufts/surveyreport/master/R/generate_visual_responses.R", 
                                  ssl.verifypeer = FALSE)
 eval(parse(text = script_visual_results))
-rm("script_question_type", "script_visual_results")
+
+script_col_ID_to_text <- RCurl::getURL("https://raw.githubusercontent.com/emmamorgan-tufts/surveyreport/master/R/column_ID_to_text.R", 
+                                 ssl.verifypeer = FALSE)
+eval(parse(text = script_col_ID_to_text))
+
+rm("script_question_type", "script_visual_results", "script_col_ID_to_text")
 
 
 ```
@@ -72,24 +77,26 @@ for (question in questions ) {
   title <- question[['Payload']][['QuestionTextClean']]
   
   if (startsWith(question_type,"matrix_single") | startsWith(question_type, "mc_single")) {
-    print(paste(question$Payload$QuestionID,": ",
-                question$Payload$QuestionText, " (",
-                question_type,")",sep=""))
-    lr <- generate_visual_responses(question)
-    print(plot(lr)+ggtitle(title))
+    # print(paste(question$Payload$QuestionID,": ",
+    #             question$Payload$QuestionText, " (",
+    #             question_type,")",sep=""))
+    lr <- generate_visual_responses(question, question_type = question_type)
+    print(plot(lr)+
+            ggtitle(stringr::str_wrap(title,70))+
+            theme(plot.title = element_text(size=10, hjust=0.5)))
   } else {
-    print(paste(question$Payload$QuestionID,": ",
-                question$Payload$QuestionText, " (",
-                question_type,")",sep=""))
+    # print(paste(question$Payload$QuestionID,": ",
+    #             question$Payload$QuestionText, " (",
+    #             question_type,")",sep=""))
   }
   
   i <- i+1
-  print(paste("i: ",i,sep=""))
+  # print(paste("i: ",i,sep=""))
   
-  if (i>10) {break}
+#  if (i>10) {break}
   
 }
 
-print(question_type_list)
+#print(question_type_list)
 
 ```
