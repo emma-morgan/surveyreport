@@ -12,7 +12,7 @@ library(tidyverse)
 library(likert)
 
 
-generate_visual_responses <- function(question, remove_na = TRUE) {
+generate_visual_responses <- function(question, remove_na = TRUE, question_type) {
   
   #Get our response table decoded
   
@@ -37,11 +37,21 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
     spread(key=key,value=text, drop=FALSE) %>%
     select(-ROW_ID)
   
+  #Convert column names to text?
+  
+  if (question_type == "matrix_single_answer") {
+    text_responses <- colnames_to_item_text(text_responses = text_responses, 
+                                        question = question, 
+                                        original_first_rows = original_first_rows)
+  }
+  
   #Convert to factor
   
   factor_responses <- as.data.frame(lapply(text_responses, function(x){
-    factor(x, levels =factor_levels)}))
+    factor(x, levels = factor_levels)}))
+  names(factor_responses) <- names(text_responses)
 
+ 
   lr <- likert::likert(factor_responses)
   
   return(lr)
