@@ -25,22 +25,8 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
     response_table <- filter(response_table, !(value < 0))
   }
 
-  # response_table <- as.tibble(create_response_lookup_table(question)) %>%
-  #   select(var, text)# %>%
-  #   as.tibble()# %>%
-  #   dplyr::arrange(var)
-  # if (remove_na) {
-  #   response_table <- filter(response_table )
-  # }
-  
-  
-  
   factor_levels <- unlist(response_table[['text']])
   
-  #Load text for the question
-  
-  title <- question[['Payload']][['QuestionTextClean']]
-
   q_responses <- question[['Responses']]
   
   text_responses <- dplyr::mutate(q_responses, ROW_ID = 1:nrow(q_responses)) %>%
@@ -57,6 +43,7 @@ generate_visual_responses <- function(question, remove_na = TRUE) {
     factor(x, levels =factor_levels)}))
 
   lr <- likert::likert(factor_responses)
+  
   return(lr)
 }
 
